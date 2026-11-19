@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "description": "Illustrative grandfather loop. Existence constraints are not implemented; the loop alone proves no contradiction.",
+  "events": [
+    {
+      "id": "e0",
+      "label": "Event 0",
+      "time": 0
+    },
+    {
+      "id": "e1",
+      "label": "Event 1",
+      "time": 1
+    },
+    {
+      "id": "e2",
+      "label": "Event 2",
+      "time": 2
+    }
+  ],
+  "relations": [
+    {
+      "source": "e0",
+      "target": "e1",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e1",
+      "target": "e2",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e2",
+      "target": "e0",
+      "modification_cost": 1.0
+    }
+  ]
+}

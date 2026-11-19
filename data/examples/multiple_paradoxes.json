@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "description": "Two illustrative causal loops, not verified logical paradoxes.",
+  "events": [
+    {
+      "id": "e0",
+      "label": "Event 0",
+      "time": 0
+    },
+    {
+      "id": "e1",
+      "label": "Event 1",
+      "time": 1
+    },
+    {
+      "id": "e2",
+      "label": "Event 2",
+      "time": 2
+    },
+    {
+      "id": "e3",
+      "label": "Event 3",
+      "time": 3
+    },
+    {
+      "id": "e4",
+      "label": "Event 4",
+      "time": 4
+    }
+  ],
+  "relations": [
+    {
+      "source": "e0",
+      "target": "e1",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e1",
+      "target": "e0",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e2",
+      "target": "e3",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e3",
+      "target": "e4",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e4",
+      "target": "e2",
+      "modification_cost": 1.0
+    }
+  ]
+}

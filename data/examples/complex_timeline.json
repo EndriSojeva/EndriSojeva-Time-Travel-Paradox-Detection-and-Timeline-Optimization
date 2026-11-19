@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "description": "A mixed graph for future constraint and repair experiments.",
+  "events": [
+    {
+      "id": "e0",
+      "label": "Event 0",
+      "time": 0
+    },
+    {
+      "id": "e1",
+      "label": "Event 1",
+      "time": 1
+    },
+    {
+      "id": "e2",
+      "label": "Event 2",
+      "time": 2
+    },
+    {
+      "id": "e3",
+      "label": "Event 3",
+      "time": 3
+    },
+    {
+      "id": "e4",
+      "label": "Event 4",
+      "time": 4
+    },
+    {
+      "id": "e5",
+      "label": "Event 5",
+      "time": 5
+    },
+    {
+      "id": "e6",
+      "label": "Event 6",
+      "time": 6
+    },
+    {
+      "id": "e7",
+      "label": "Event 7",
+      "time": 7
+    }
+  ],
+  "relations": [
+    {
+      "source": "e0",
+      "target": "e1",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e1",
+      "target": "e2",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e2",
+      "target": "e0",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e2",
+      "target": "e3",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e3",
+      "target": "e4",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e4",
+      "target": "e5",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e5",
+      "target": "e3",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e5",
+      "target": "e6",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "e6",
+      "target": "e7",
+      "modification_cost": 1.0
+    }
+  ]
+}
