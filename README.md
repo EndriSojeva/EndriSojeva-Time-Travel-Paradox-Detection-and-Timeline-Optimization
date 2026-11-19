@@ -4,9 +4,10 @@ Academic Python project by Endri Sojeva. The project models events and causal
 relations as a directed graph, with planned support for logical contradictions
 and minimum-cost timeline repairs.
 
-Phase 1 includes a graph model, four illustrative scenarios, five notebook
-scaffolds and a Streamlit interface. A causal cycle alone does not establish a
-logical paradox. See [methodology](docs/methodology.md) and the
+The project includes a graph model, validated timeline edits, six illustrative
+scenarios, five notebooks and a Streamlit interface. A causal cycle alone does
+not establish a logical paradox. Detection, repair and benchmarks are planned.
+See [methodology](docs/methodology.md) and the
 [complexity analysis plan](docs/complexity_analysis.md).
 
 ## Local setup on Windows
@@ -25,12 +26,13 @@ interpreter and install the recommended Python, Pylance and Jupyter extensions.
 
 ## Notebooks and Kaggle
 
-Use the project's Python environment for notebooks under `notebooks/`. On
-Kaggle, enable Internet and install the repository at a chosen commit with
-`%pip install "git+<REAL_REPOSITORY_URL>@<COMMIT_SHA>"`, or attach the source as
-a dataset and install from its directory. Restart the kernel if needed. Record
-the commit, dependency versions and seeds for comparisons. Kaggle execution
-and authentication have not been verified.
+Use the project's Python environment for notebooks under `notebooks/`. Notebook
+01 demonstrates the event model and timeline operations. Notebooks 02–05 are
+scaffolds for the remaining work. All five Phase 1 notebooks ran successfully
+on Kaggle with a private source dataset from commit `ad8fa96`. Kaggle copies
+load a source snapshot associated with a GitHub commit. Changes pushed to GitHub
+require a new snapshot and notebook run. Record the full commit, dependency
+versions and seeds for comparisons.
 
 ## Layout
 
