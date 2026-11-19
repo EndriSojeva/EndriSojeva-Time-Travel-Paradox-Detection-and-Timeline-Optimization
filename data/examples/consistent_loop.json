@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "description": "A fictional information loop with compatible assertions about the same artifact.",
+  "events": [
+    {"id": "receipt", "label": "Archive receives a chart", "time": 1840, "location": "Archive", "entities": ["chart"], "state_changes": [{"entity": "chart", "attribute": "revision", "value": "A"}]},
+    {"id": "departure", "label": "Researcher returns the chart", "time": 1920, "entities": ["chart"], "state_changes": [{"entity": "chart", "attribute": "revision", "value": "A"}]}
+  ],
+  "relations": [
+    {"source": "receipt", "target": "departure", "kind": "causal"},
+    {"source": "departure", "target": "receipt", "kind": "time_travel"}
+  ]
+}

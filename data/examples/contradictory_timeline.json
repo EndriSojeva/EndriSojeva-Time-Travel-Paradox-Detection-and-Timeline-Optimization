@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "description": "Two reports assign incompatible values to one single-valued attribute at the same time. This fixture contains evidence for a future logical rule, and its graph is acyclic.",
+  "events": [
+    {"id": "report_a", "label": "Report says beacon is on", "time": 1900, "entities": ["beacon"], "state_changes": [{"entity": "beacon", "attribute": "power", "value": "on"}]},
+    {"id": "report_b", "label": "Report says beacon is off", "time": 1900, "entities": ["beacon"], "state_changes": [{"entity": "beacon", "attribute": "power", "value": "off"}]}
+  ],
+  "relations": []
+}

@@ -17,7 +17,7 @@ section = st.sidebar.radio("Workspace", ["Dashboard", "Graph Builder", "Paradox 
 st.title(section)
 st.caption("Endri Sojeva · Time Travel Paradox Detection and Timeline Optimization")
 if section == "Dashboard":
-    st.info("Phase 1: project foundation. Detection, repair and experiments are planned for Phase 2.")
+    st.info("The timeline model supports causal links and time-travel edits. Detection, repair and experiments are planned.")
     st.markdown("Explore directed causal graphs in **Graph Builder**. A causal cycle alone does not establish a logical paradox.")
 elif section == "Graph Builder":
     examples = Path(__file__).parent / "data" / "examples"
