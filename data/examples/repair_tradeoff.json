@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "description": "Three independent state conflicts illustrate why a cheap first edit can cost more overall. All events are fictional reports at the same instant.",
+  "events": [
+    {"id": "hub", "label": "Combined report", "time": 1900, "modification_cost": 3, "entities": ["beacon"], "state_changes": [{"entity": "beacon", "attribute": "power", "value": "on"}, {"entity": "beacon", "attribute": "mode", "value": "manual"}]},
+    {"id": "x", "label": "Power report", "time": 1900, "modification_cost": 1, "entities": ["beacon"], "state_changes": [{"entity": "beacon", "attribute": "power", "value": "off"}]},
+    {"id": "y", "label": "Mode report", "time": 1900, "modification_cost": 4, "entities": ["beacon"], "state_changes": [{"entity": "beacon", "attribute": "mode", "value": "automatic"}]},
+    {"id": "z", "label": "First signal report", "time": 1900, "modification_cost": 2, "entities": ["signal"], "state_changes": [{"entity": "signal", "attribute": "color", "value": "green"}]},
+    {"id": "w", "label": "Second signal report", "time": 1900, "modification_cost": 8, "entities": ["signal"], "state_changes": [{"entity": "signal", "attribute": "color", "value": "red"}]}
+  ],
+  "relations": []
+}
