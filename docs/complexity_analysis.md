@@ -21,7 +21,12 @@ text add time proportional to their size. The assertion index requires O(S)
 space, status and structural working data require O(V), and violations can add
 O(E + S + A + R) output space. Custom rules can have different bounds.
 
-Greedy repair complexity depends on candidate generation and repeated validation.
-Branch-and-bound has exponential worst-case search; pruning does not guarantee
-polynomial runtime. Exact bounds will be documented after the edit model and
-implementation are fixed. The general repair problem is not yet formally defined.
+With M single-use catalog entries, Greedy makes at most M(M + 1)/2 candidate
+attempts and retains a current state, candidates under comparison and visited
+keys. Branch-and-Bound may visit up to the number of ordered prefixes,
+Σ[d=0..M] M!/(M-d)!, before pruning, memoization or resource limits. Its frontier
+and memo can also grow exponentially or worse with the problem size. Each
+attempt additionally pays for graph copying, validation and state indexing.
+The best-first frontier incurs a logarithmic heap cost per insertion and removal
+in terms of frontier size. Ranking up to K retained solutions may scan K entries.
+Pruning does not guarantee polynomial complexity.

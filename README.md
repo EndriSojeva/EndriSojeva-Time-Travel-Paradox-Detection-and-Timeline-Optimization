@@ -2,12 +2,14 @@
 
 Academic Python project by Endri Sojeva. The project models events and causal
 relations as a directed graph, with cycle witnesses and rule-based consistency
-validation. Minimum-cost timeline repair is planned.
+validation and finite minimum-cost timeline repair.
 
-The project includes a graph model, validated timeline edits, six illustrative
+The project includes a graph model, validated timeline edits, seven illustrative
 scenarios, five notebooks and a Streamlit interface. A causal cycle alone does
 not establish a logical paradox. Choose **Paradox Detection** in Streamlit to
-inspect cycle witnesses and conflicts. Repair and benchmarks are planned.
+inspect cycle witnesses and conflicts. Choose **Timeline Repair** to compare
+Greedy with Branch-and-Bound, control search limits and inspect alternatives.
+Global optimum claims are relative to the finite edit catalog. Benchmarks remain planned.
 See [methodology](docs/methodology.md) and the
 [complexity analysis plan](docs/complexity_analysis.md).
 
@@ -29,7 +31,8 @@ interpreter and install the recommended Python, Pylance and Jupyter extensions.
 
 Use the project's Python environment for notebooks under `notebooks/`. Notebook
 01 demonstrates timeline operations. Notebook 02 explains DFS and Tarjan and
-compares consistent and inconsistent scenarios. Notebooks 03–05 are scaffolds
+compares consistent and inconsistent scenarios. Notebook 03 demonstrates Greedy,
+exact, infeasible and limited repair runs. Notebooks 04–05 are scaffolds
 for the remaining work. All five Phase 1 notebooks ran successfully
 on Kaggle with a private source dataset from commit `ad8fa96`. Kaggle copies
 load a source snapshot associated with a GitHub commit. Changes pushed to GitHub

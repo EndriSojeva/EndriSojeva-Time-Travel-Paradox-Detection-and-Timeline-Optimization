@@ -123,13 +123,62 @@ Tests compare SCCs with NetworkX on 18 seeded graphs and check a 2,500-node chai
 and cycle without recursion. Notebook 02 produces a table and graphs for the
 four structural and logical outcomes. These are correctness demonstrations.
 
-## Planned repair and experiments
+## Minimum-cost repair
 
-Use the operations and consistency rules above when evaluating candidate edits.
-Repair candidates must be revalidated against all rules. Define admissible edits,
-protected events, nonnegative costs and alternative timelines. Compare a greedy
-baseline with exact branch-and-bound on small instances. Claim minimum cost only
-when the exact search completes with a valid bound and exhaustive coverage.
+The input is a finite catalog of `RepairEdit` values. Each entry can be used once
+per plan. A successful plan ends at its first consistent timeline under the same
+rules as the original. The default catalog is generated once from the original
+events and edges: remove a non-protected event, remove an edge, or cancel its
+named trip. Explicit entries can also replace event fields, set a finite time,
+rewire or modify an edge, or prevent an unused trip ID. Only supplied values
+are searched. The search does not invent events, timestamps or dependencies.
+Changing, rescheduling or deleting a protected event is rejected. Editing an
+incident relation is allowed. Deletion cascades through its edges and cancels
+named trips, while the detector still enforces explicit existence prerequisites.
+
+For a feasible plan of edits \(e_1, \ldots, e_d\), with successive graphs \(G_i\),
+minimize \(C = \sum_{i=1}^d c(e_i, G_{i-1})\). Every fee is nonnegative. Event and
+edge replacements, removals and reschedules charge the previous record's fee in
+the current graph. Named cancellation defaults to the current edge fee and can
+be given an explicit fee. Prevention defaults to one. Search sums exact rational
+representations of the input decimal fees. This avoids rounding at ties.
+
+Greedy accepts a strict reduction in the count of active violations. It favors
+free improving edits, then larger reduction per cost, larger reduction, lower
+cost and catalog order. It keeps the cheapest feasible result it examined and
+can stop locally even when a nonimproving intermediate edit would enable a fix.
+
+Branch-and-Bound expands feasible ordered prefixes by cumulative cost. The
+current cost is a lower bound because remaining fees are nonnegative. A capped
+Greedy preview can supply an incumbent. When K distinct solutions have been
+found, a branch is pruned only if its lower bound strictly exceeds the worst
+retained cost. Ties are explored. Results rank by cost, number of edits, then
+catalog index sequence. Equivalent modeled states with the same remaining
+edits are dominated by the best such prefix. For custom constraints, which may
+inspect history, the search keeps distinct prefixes. Alternatives have
+independent graphs and distinct modeled states. They include a final consistency
+report, audit records and the final diff of events and edges.
+
+If the search exhausts the frontier or eliminates it with valid bounds, the
+minimum is proven within this finite model. Exhaustion without a feasible
+candidate proves there is no solution in the catalog. If limited, the optimizer
+returns feasible incumbents found so far and makes no optimality claim. Already
+consistent input returns a zero-cost copy, even when the graph has a cycle.
+
+`candidates_explored` counts attempted edits, including rejected edits and Greedy
+preview attempts. `expanded` counts inconsistent states entered for expansion.
+`pruned` counts bound or dominance discards, model no-ops and Greedy discards that
+do not improve or revisit a state. `invalid` records rejected operations separately.
+`greedy_candidates` reports the preview or heuristic portion of candidate attempts.
+The search-time limit is cooperative between edits. A single copy or consistency
+check may finish after the deadline. The candidate budget limits exploration;
+the alternative limit separately caps the number of returned plans.
+
+Notebook 03 demonstrates the trade-off fixture (Greedy cost 6, exact cost 5),
+an already consistent cycle (cost 0), an infeasible protected case and a
+candidate-limited run. The numeric results describe the supplied fixtures.
+
+## Planned experiments
 
 Experiments will vary graph size, density, cycle structure, constraint count and
 operation mix. Use fixed seeds, repeated measurements, environment versions,
