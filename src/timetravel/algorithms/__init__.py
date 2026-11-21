@@ -1,1 +1,1 @@
-"""Custom DFS, Tarjan, greedy and branch-and-bound algorithms: Phase 2."""
+"""Graph analysis and timeline optimization algorithms."""

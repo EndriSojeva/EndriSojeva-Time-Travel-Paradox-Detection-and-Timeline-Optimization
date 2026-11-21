@@ -1,21 +1,31 @@
 {
   "schema_version": 1,
-  "description": "Illustrative grandfather loop. Existence constraints are not implemented; the loop alone proves no contradiction.",
+  "description": "Grandfather paradox: the traveler intervenes before their ancestor can survive to found the family, but their birth and departure are still recorded as having occurred.",
   "events": [
     {
       "id": "e0",
-      "label": "Event 0",
-      "time": 0
+      "label": "Ancestor survives to found the family",
+      "time": 1920,
+      "status": "prevented",
+      "entities": ["ancestor"]
     },
     {
       "id": "e1",
-      "label": "Event 1",
-      "time": 1
+      "label": "Traveler is born",
+      "time": 1970,
+      "entities": ["traveler"]
     },
     {
       "id": "e2",
-      "label": "Event 2",
-      "time": 2
+      "label": "Traveler departs for the past",
+      "time": 2020,
+      "entities": ["traveler"]
+    },
+    {
+      "id": "intervention",
+      "label": "Traveler prevents the ancestor's survival",
+      "time": 1919,
+      "entities": ["traveler", "ancestor"]
     }
   ],
   "relations": [
@@ -31,8 +41,17 @@
     },
     {
       "source": "e2",
+      "target": "intervention",
+      "kind": "time_travel",
+      "modification_cost": 1.0
+    },
+    {
+      "source": "intervention",
       "target": "e0",
       "modification_cost": 1.0
     }
+  ],
+  "prerequisites": [
+    {"event_id": "e2", "required_event_id": "e0"}
   ]
 }
