@@ -62,23 +62,70 @@ assert trip.graph.has_edge("departure", "arrival")
 assert not alternative.graph.has_edge("departure", "arrival")
 ```
 
-`TimelineConstraint` defines the future rule interface. A `ConstraintViolation`
+`TimelineConstraint` defines the rule interface. A `ConstraintViolation`
 can carry a causal or logical classification, responsible event IDs and directed
-relation evidence. The consistent and contradictory example files illustrate
-inputs for Issue #3. Their logical conclusions depend on the selected rules.
+relation evidence. The example files illustrate results under the declared rules.
 
 Run the focused tests with `python -m pytest tests/test_graph.py tests/test_constraints.py`
 or the full suite with `python -m pytest` from the configured environment.
 
-## Planned detection, repair and experiments
-DFS will supply cycle witnesses; Tarjan will isolate strongly connected components.
-A cycle is structural evidence, not proof of a paradox: self-consistent loops may
-exist. Logical contradictions require explicit existence, precedence or mutually
-exclusive state rules. Acyclic graphs may also violate such rules. Backward edges
-are not automatically invalid in a time-travel model.
+## Detection and consistency
+Iterative DFS tracks the active path and returns its closed suffix when an edge
+leads to an active vertex. Iterative Tarjan tracks discovery indices, low-link
+values and a stack of unassigned vertices to identify SCCs. A component is cyclic
+if it contains multiple vertices or a self-loop. The report returns one DFS
+witness per cyclic component, including directed edges. Traversal follows graph
+insertion order, so repeated analysis of the same ordered input gives the same
+output. Reordering equivalent input may change witnesses or presentation order.
 
-Define validity relative to declared rules and return violations with responsible
-event IDs. Use the operations defined above when evaluating candidate edits.
+A timeline is consistent when its evaluated rules return no violations. A cycle
+or backward edge is structural evidence. Apply these rules independently:
+
+- **Exclusive state.** Occurred events may assert only one distinct value for
+  each `(time, entity, attribute)` key. Different times and events that have yet
+  to occur do not produce competing assertions for that key.
+- **Causal prerequisite.** Every declared incoming edge of an occurred event
+  requires an occurred source. A planned or prevented source is reported with
+  its effect and the responsible edge.
+- **Active travel.** A named active trip requires two occurred endpoints and
+  its recorded edge. Prevented and cancelled trips do not assert an active trip.
+- **Explicit prerequisites and required events.** A JSON `prerequisites` item
+  declares `event_id` and `required_event_id`. If the dependent occurred, its
+  prerequisite must exist and have occurred, even when an edit removed the edge
+  or prerequisite node. `required_events` is a list of IDs whose occurrence is
+  mandatory without a dependent. A recorded status of `planned` is insufficient
+  for these rules. These are scenario declarations, not inferred physics.
+
+For the fictional grandfather paradox, the traveler interferes before the family
+is founded. The scenario encodes the negative outcome as `e0` (ancestor survival)
+being prevented. `e1` (birth) still claims occurrence and depends on `e0` by edge.
+`e2` (departure) also explicitly requires `e0`. The report identifies the loop,
+the failed causal dependency and the failed existence prerequisite. The loop
+with revision A at both dates is consistent. The two incompatible beacon
+assertions at the same year produce a contradiction in an acyclic graph.
+
+```python
+from pathlib import Path
+from timetravel.detection import detect_paradoxes
+from timetravel.scenarios import load_scenario
+
+scenario = load_scenario(Path("data/examples/grandfather_paradox.json"))
+report = detect_paradoxes(scenario.graph, scenario.constraints)
+assert len(report.cycles) == 1 and not report.consistent
+```
+
+The report keeps SCCs and witnesses separate from rule violations and provides
+event IDs, rule IDs, explanations and relevant edges for candidate repair.
+Passing `[]` as the rules requests structural analysis only. The model does
+not propagate world state between timestamps or infer unrecorded occurrences.
+Default rules are read-only. Extension rules are expected to follow that contract.
+Tests compare SCCs with NetworkX on 18 seeded graphs and check a 2,500-node chain
+and cycle without recursion. Notebook 02 produces a table and graphs for the
+four structural and logical outcomes. These are correctness demonstrations.
+
+## Planned repair and experiments
+
+Use the operations and consistency rules above when evaluating candidate edits.
 Repair candidates must be revalidated against all rules. Define admissible edits,
 protected events, nonnegative costs and alternative timelines. Compare a greedy
 baseline with exact branch-and-bound on small instances. Claim minimum cost only
