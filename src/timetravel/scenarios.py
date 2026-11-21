@@ -9,6 +9,7 @@ import networkx as nx
 from .constraints import DEFAULT_CONSTRAINTS, EventPreconditions, EventPrerequisite, RequiredEvents, TimelineConstraint
 from .graph import build_graph
 from .models import CausalRelation, Event
+from .operations import travel_to_past
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,8 @@ def load_scenario(path: Path) -> Scenario:
     data = json.loads(path.read_text(encoding="utf-8"))
     graph = build_graph((Event(**event) for event in data["events"]),
                         (CausalRelation(**relation) for relation in data["relations"]))
+    for action in data.get("travel_actions", ()):
+        graph = travel_to_past(graph, *action).graph
     prerequisites = tuple(EventPrerequisite(**item) for item in data.get("prerequisites", ()))
     required = tuple(data.get("required_events", ()))
     return Scenario(data["description"], graph,

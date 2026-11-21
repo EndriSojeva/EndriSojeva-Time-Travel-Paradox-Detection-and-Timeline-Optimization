@@ -29,4 +29,9 @@ and memo can also grow exponentially or worse with the problem size. Each
 attempt additionally pays for graph copying, validation and state indexing.
 The best-first frontier incurs a logarithmic heap cost per insertion and removal
 in terms of frontier size. Ranking up to K retained solutions may scan K entries.
-Pruning does not guarantee polynomial complexity.
+Pruning does not guarantee polynomial complexity. In the recorded experiment,
+increasing forward-edge probability at a fixed 2,000 vertices increased the
+observed traversal time. Changes in DFS runtime also depend on how early a
+witness is found. The independent oracle is capped at six edits, and exact raw
+prefix accounting at eight. The five-conflict configuration reached its candidate
+limit. These finite measurements do not establish asymptotic behavior.

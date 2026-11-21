@@ -12,6 +12,16 @@ __pycache__/
 build/
 dist/
 results/*
+!results/reference/
+results/reference/*
+!results/reference/raw.csv
+!results/reference/summary.csv
+!results/reference/environment.json
+!results/reference/figures/
+results/reference/figures/*
+!results/reference/figures/detection_scaling.png
+!results/reference/figures/repair_costs.png
+!results/reference/figures/repair_search.png
 !results/figures/
 results/figures/*
 !results/figures/.gitkeep

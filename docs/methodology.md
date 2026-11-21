@@ -178,11 +178,76 @@ Notebook 03 demonstrates the trade-off fixture (Greedy cost 6, exact cost 5),
 an already consistent cycle (cost 0), an infeasible protected case and a
 candidate-limited run. The numeric results describe the supplied fixtures.
 
-## Planned experiments
+## Experimental evaluation
 
-Experiments will vary graph size, density, cycle structure, constraint count and
-operation mix. Use fixed seeds, repeated measurements, environment versions,
-wall-clock timings, peak Python allocations (with native-memory limitations),
-expanded/pruned search nodes and cost gaps against an exact baseline.
-Keep raw results and distinguish timeouts from completed solutions. No measurements
-have been collected in Phase 1.
+The full profile tests DAGs with 10, 100, 500 and 2,000 events. Each size uses
+forward-edge probabilities 0.005 and 0.025 with seeds 42 and 73. The runner stores
+realized directed edge density separately. Additional families plant disjoint
+named travel loops and same-time conflicts or sample random backward edges.
+Declared counts and NetworkX's SCC partition serve as checks. For random backward
+edges, the structural answer comes from NetworkX instead of a planted count.
+The repair fixtures include the grandfather paradox, a consistent loop, competing
+repair costs, protected infeasibility and both time and candidate limits. The
+repair sweep holds graph size at 10 and varies one to five state conflicts;
+its move catalog contains only the conflicting events' removals. More conflicts
+also increase catalog size, so the effects cannot be separated by this sweep.
+
+Both methods in each pair see the same graph, rules, limits and candidate catalog.
+DFS seeks one witness and Tarjan returns a partition. Their timings compare work
+on the same input, while their outputs have different purposes. All methods run
+three timed trials per configuration with alternating algorithm order. Each row
+pairs `perf_counter` timing with a separate `tracemalloc` replay. The traced peak
+covers Python allocations made during the call. Existing graph memory, untracked
+native allocations and process RAM are outside that measurement. The replay's
+status and candidate count are recorded because tracing may change a time-limited
+outcome. The time-limit sentinel uses zero seconds to check the limit path
+reliably. A real run at a positive deadline depends on machine and workload.
+Windows results record the clean measured source SHA and library versions.
+
+`raw.csv` contains individual trials and `summary.csv` contains counts, ranges,
+quartiles and medians per configuration. Repair costs are blank when no valid
+incumbent was returned. Exact decimal cost strings are also stored in raw data.
+The independent oracle exhausts the ordered feasible-prefix tree for catalogs
+with at most six entries. It stops at invalid transitions or first consistency,
+as specified by the model. This can prove costs for these individual instances.
+
+### What the two pruning shares measure
+
+- A **candidate** is an attempted edit, including invalid and Greedy preview
+  attempts. An **expansion** enters an inconsistent prefix's edit loop. An
+  exact **bound cut** rejects a prefix whose cumulative cost exceeds the retained
+  threshold. A **dominance cut** rejects an equivalent state with the same
+  remaining edits and a no-better prefix rank. The `pruned` counter also includes
+  no-op and heuristic discards. Invalid edits have their own counter.
+- **Exact prefix discard share** is `(bound cuts + dominance cuts) / (bound cuts
+  + dominance cuts + exact expansions)`. The denominator counts these exact
+  decisions and excludes Greedy preview, terminal solutions and invalid edits.
+- **Raw prefix space pruned** is `skipped descendants / Σ P(M,d)` for `d=1..M`,
+  reported only for catalogs of at most eight edits. For each cut nonterminal
+  prefix with `k` remaining choices, its strictly deeper subtree has
+  `Σ P(k,d)` raw descendants. The cut prefixes are disjoint. The denominator is
+  the exact unfiltered universe, which includes invalid and post-consistency
+  prefixes. Skips caused directly by invalid edits, terminal consistency, or
+  search limits contribute zero. For capped runs this is the share accounted
+  for by observed cuts only. A blank share denotes an undefined denominator or
+  unmeasured quantity.
+
+### Reference run and interpretation
+
+The checked-in [reference run](../results/reference/environment.json) contains
+237 trials, with 171/171 structural or detection checks agreeing with their
+references. On the 2,000-event DAGs at forward-edge probability 0.025, the median
+graph had about 49,986 edges across the two seeds. Pooling six trials per method,
+DFS took 5.70 ms and allocated 163 KiB at peak. Tarjan took 6.05 ms and allocated
+275 KiB. The full detector took 112.47 ms and allocated 275 KiB. These are
+observations on the recorded Windows environment and are not complexity proofs.
+
+On the trade-off fixture, Greedy returned cost 6 in 2.59 ms with 12 candidate
+attempts. Branch-and-Bound proved cost 5 in 8.32 ms with 40 attempts. The oracle
+agreed after 109 attempts. The exact discard share was 72.41% and the measured
+raw-prefix share was 69.54%, each with its own denominator. In the fixed-size
+repair sweep, exact search proved an optimum with four conflicts after 161
+attempts. At five conflicts it used all 1,000 attempts and returned a valid
+cost-27 incumbent without a proof. These are small synthetic scenarios and
+should not be generalized to every timeline. The raw trials, dispersion and
+figures support comparisons within each measured environment.

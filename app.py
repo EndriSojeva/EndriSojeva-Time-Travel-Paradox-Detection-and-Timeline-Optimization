@@ -1,8 +1,10 @@
 """Streamlit shell for the academic timeline analysis project."""
 
+import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import pandas as pd
 import streamlit as st
 
 from timetravel.detection import detect_paradoxes
@@ -88,6 +90,35 @@ def show_repair(scenario, filename):
         show_graph(alternative.graph, alternative.report)
 
 
+def show_benchmarks(section):
+    reference = Path(__file__).parent / "results" / "reference"
+    if not (reference / "summary.csv").is_file():
+        st.info("Run the benchmark to generate the reference tables and figures.")
+        return
+    environment = json.loads((reference / "environment.json").read_text(encoding="utf-8"))
+    data = pd.read_csv(reference / "summary.csv")
+    data["runtime_ms"] = data["runtime_seconds_median"] * 1_000
+    data["peak_python_kib"] = data["peak_python_bytes_median"] / 1024
+    st.caption(f"Source {environment['source_sha'][:12]} · Python {environment['python']} · "
+               f"{environment['repetitions']} trials per configuration")
+    if section == "Algorithm Comparison":
+        traversal = data[data["algorithm"].isin(["dfs", "tarjan"])]
+        st.caption("DFS finds one cycle witness. Tarjan returns the full SCC partition.")
+        st.dataframe(traversal[["scenario", "algorithm", "events", "relations", "runtime_ms", "peak_python_kib"]],
+                     hide_index=True)
+        columns = ["scenario", "algorithm", "cost_median", "proven_trials", "candidates_explored_median",
+                   "runtime_ms", "peak_python_kib", "statuses"]
+        st.dataframe(data[data["suite"] == "repair"][columns], hide_index=True)
+        st.image(str(reference / "figures" / "repair_costs.png"))
+        st.caption("A missing cost indicates that no feasible result was returned. A capped search does not prove optimality.")
+    else:
+        st.image(str(reference / "figures" / "detection_scaling.png"))
+        st.image(str(reference / "figures" / "repair_search.png"))
+        columns = ["scenario", "algorithm", "events", "relations", "correct_trials", "runtime_ms", "peak_python_kib"]
+        st.dataframe(data[data["suite"] == "detection"][columns], hide_index=True)
+        st.caption("Memory shows peak Python allocations tracked by tracemalloc, in KiB. It is not process RAM.")
+
+
 st.set_page_config(page_title="Time Travel Lab", page_icon="⏳", layout="wide")
 st.sidebar.title("Time Travel Lab")
 section = st.sidebar.radio("Workspace", ["Dashboard", "Graph Builder", "Paradox Detection",
@@ -136,4 +167,4 @@ elif section in ("Graph Builder", "Paradox Detection", "Timeline Repair"):
             if item.relations:
                 st.caption("Relations: " + ", ".join(f"{source} → {target}" for source, target in item.relations))
 else:
-    st.info("Planned for Phase 2. No algorithm results or performance measurements are available yet.")
+    show_benchmarks(section)

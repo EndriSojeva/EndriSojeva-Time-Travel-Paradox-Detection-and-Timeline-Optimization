@@ -138,6 +138,10 @@ class SearchMetrics:
     invalid: int = 0
     greedy_candidates: int = 0
     elapsed_seconds: float = 0.0
+    exact_expanded: int = 0
+    bound_pruned: int = 0
+    dominance_pruned: int = 0
+    raw_prefix_descendants_pruned: int | None = None
 
 
 @dataclass(frozen=True)
@@ -211,6 +215,7 @@ class SearchContext:
     constraints: tuple[TimelineConstraint, ...] | None
     protected: frozenset[str]
     limits: SearchLimits
+    track_prefix_pruning: bool = False
     metrics: SearchMetrics = field(default_factory=SearchMetrics)
     started: float = field(default_factory=lambda: monotonic())
     limit_reason: str | None = None
@@ -258,7 +263,7 @@ def _changed(before: dict, after: dict) -> tuple:
 def repair_timeline(graph: nx.DiGraph, constraints: Sequence[TimelineConstraint] | None = None,
                     *, edits: Sequence[RepairEdit] | None = None, protected_events: Sequence[str] = (),
                     method: str = "branch_and_bound", limits: SearchLimits = SearchLimits(),
-                    use_greedy_bound: bool = True) -> RepairResult:
+                    use_greedy_bound: bool = True, track_prefix_pruning: bool = False) -> RepairResult:
     """Search single-use edits and keep up to K distinct, validated timelines."""
     from .algorithms.branch_bound import branch_and_bound
     from .algorithms.greedy import greedy
@@ -273,7 +278,11 @@ def repair_timeline(graph: nx.DiGraph, constraints: Sequence[TimelineConstraint]
         if event not in graph:
             raise ValueError(f"Unknown protected event: {event}")
     catalog = default_edits(graph, protected) if edits is None else tuple(dict.fromkeys(edits))
-    context = SearchContext(catalog, rules, protected, limits)
+    if track_prefix_pruning and len(catalog) > 8:
+        raise ValueError("Exact raw-prefix accounting is limited to eight catalog entries")
+    context = SearchContext(catalog, rules, protected, limits, track_prefix_pruning)
+    if track_prefix_pruning and method == "branch_and_bound":
+        context.metrics.raw_prefix_descendants_pruned = 0
     original = SearchState(graph, report, (1 << len(catalog)) - 1, _timeline_key(graph))
     if report.consistent:
         states, status = (original,), RepairStatus.ALREADY_CONSISTENT
