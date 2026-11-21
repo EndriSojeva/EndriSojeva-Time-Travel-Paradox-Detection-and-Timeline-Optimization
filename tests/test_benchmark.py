@@ -5,7 +5,9 @@ from subprocess import run
 import sys
 
 import networkx as nx
+import nbformat
 import pytest
+from nbclient import NotebookClient
 
 from experiments.benchmark import exhaustive_oracle, raw_prefix_count, run_benchmark
 from experiments.generate_scenarios import ScenarioSpec, generate_scenario
@@ -15,6 +17,7 @@ from timetravel.models import Event, StateChange
 from timetravel.repair import SearchLimits, default_edits, repair_timeline
 from timetravel.scenarios import load_scenario
 
+ROOT = Path(__file__).resolve().parents[1]
 
 def test_seeded_generation_is_deterministic_and_matches_declared_counts():
     spec = ScenarioSpec(30, 0.3, 42, conflicts=3, trips=7, protected=4)
@@ -79,3 +82,20 @@ def test_smoke_benchmark_exports_reconcilable_raw_rows_and_figures(tmp_path):
     assert metadata["source_sha"] == sha and metadata["repetitions"] == 3
     for name in ("detection_scaling", "repair_costs", "repair_search"):
         assert (tmp_path / "figures" / f"{name}.png").read_bytes().startswith(b"\x89PNG")
+
+
+@pytest.mark.parametrize("filename", ["04_Algorithm_Comparison.ipynb", "05_Performance_Analysis.ipynb"])
+def test_benchmark_notebook_runs_with_smoke_profile(filename, monkeypatch, tmp_path):
+    monkeypatch.setenv("TIMETRAVEL_BENCHMARK_PROFILE", "smoke")
+    notebook = nbformat.read(ROOT / "notebooks" / filename, as_version=4)
+    nbformat.validate(notebook)
+    notebook.cells.insert(0, nbformat.v4.new_code_cell(
+        f"from pathlib import Path\nRESULTS_DIR = Path({str(tmp_path)!r})\nSOURCE_COMMIT = {'a' * 40!r}",
+    ))
+    NotebookClient(notebook, timeout=90, kernel_name="python3",
+                   resources={"metadata": {"path": str(ROOT / "notebooks")}}).execute()
+    outputs = [out for cell in notebook.cells for out in cell.get("outputs", [])]
+    assert sum("image/png" in out.get("data", {}) for out in outputs) == 2
+    assert sum("text/html" in out.get("data", {}) for out in outputs) >= 2
+    run_dir = tmp_path / f"notebook-{filename[:2]}"
+    assert (run_dir / "raw.csv").is_file() and (run_dir / "summary.csv").is_file()

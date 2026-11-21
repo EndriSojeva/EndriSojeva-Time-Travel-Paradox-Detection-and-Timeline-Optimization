@@ -1,0 +1,17 @@
+{
+  "source_sha": "49d42ee3ae162dc735534cd182dfeb01ef08bfcc",
+  "source_dirty": false,
+  "profile": "full",
+  "repetitions": 3,
+  "python": "3.13.18",
+  "system": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "logical_cpus": 16,
+  "environment": "local",
+  "libraries": {
+    "networkx": "3.7",
+    "numpy": "2.5.5",
+    "pandas": "3.1.1",
+    "matplotlib": "3.11.2"
+  }
+}
